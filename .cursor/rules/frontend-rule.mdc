@@ -11,3 +11,17 @@ alwaysApply: false
 - You should use Next.js as it works best with Vercel. 
 - This frontend will ultimately be deployed on Vercel, but it should be possible to test locally. 
 - Always provide users with a way to run the created UI once you have created it.
+- The color theme should be beige, dark grey, and black.
+- Use a warm beige background, dark grey body text, and black primary buttons.
+- Give the interface a calm, welcoming appearance with generous spacing.
+- Use rounded message bubbles and clearly distinguish user and assistant messages.
+- Make the chat interface work comfortably on both phones and desktop screens.
+- Show a loading indicator while waiting for a reply and a clear message if a request fails.
+
+### Documentation references
+- Consult the official Next.js documentation when implementing frontend features:
+  https://nextjs.org/docs
+- Consult the official Vercel documentation when configuring deployment:
+  https://vercel.com/docs
+- Read the relevant documentation pages before making implementation decisions.
+- Use guidance that matches the versions installed in this project.
