@@ -18,11 +18,21 @@ export function getApiBaseUrl(): string {
   return base.replace(/\/+$/, "");
 }
 
+/** One earlier message in the conversation, sent so the coach has context. */
+export type ConversationTurn = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 /**
- * Sends one user message and returns the coach's reply text.
+ * Sends one user message with the conversation so far and returns the coach's
+ * reply text.
  * Throws an Error with a message that is safe to show in the UI.
  */
-export async function requestCoachReply(message: string): Promise<string> {
+export async function requestCoachReply(
+  message: string,
+  history: ConversationTurn[] = [],
+): Promise<string> {
   const apiBaseUrl = getApiBaseUrl();
 
   let response: Response;
@@ -32,7 +42,7 @@ export async function requestCoachReply(message: string): Promise<string> {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, history }),
     });
   } catch {
     throw new Error(

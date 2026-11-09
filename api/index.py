@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 import os
+from typing import Literal
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,20 +18,26 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-SYSTEM_PROMPT = """You are a supportive mental coach.
+SYSTEM_PROMPT = """You are a supportive mental coach having a warm, natural conversation.
 
-Keep every reply short. Use exactly this format in plain text, with no Markdown symbols such as asterisks or pound signs:
+Keep every reply short: 2 to 4 sentences and under 90 words. Write in plain text, with no Markdown, labels, lists, or arrows.
 
-Our map: [2 to 3 topics, a few words each, separated by " → "]
+Early in the conversation, once you know what the person wants to work through, gently let them know where the two of you could go together. Say it in your own words, as part of a sentence, wherever it fits naturally in the reply. Make it specific to what they said. For example: "I'd love to start with what you want from this change, then look at the strengths you'd carry with you, and from there we can find a small way to test it."
 
-[A warm response of at most 3 short sentences that covers only the first topic on the map.]
+After that, use the earlier conversation. Remember what they have shared, refer back to it when it helps, and move along that path at their pace. Do not repeat the whole path in every reply, and change direction if they do.
 
-[One short question that helps the person move forward.]
+Focus on one thing at a time and usually end with one short question."""
 
-Use no more than 75 words in total. Make the map specific to what the person said."""
+# Keeps the request to OpenAI bounded on long conversations.
+MAX_HISTORY_MESSAGES = 40
+
+class ChatTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
 
 class ChatRequest(BaseModel):
     message: str
+    history: list[ChatTurn] = []
 
 @app.get("/")
 def root():
@@ -48,6 +55,7 @@ def chat(request: ChatRequest):
             model="gpt-5",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
+                *[turn.model_dump() for turn in request.history[-MAX_HISTORY_MESSAGES:]],
                 {"role": "user", "content": user_message}
             ]
         )

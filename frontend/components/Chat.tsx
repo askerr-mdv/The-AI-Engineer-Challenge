@@ -67,13 +67,15 @@ export default function Chat() {
       inputRef.current.style.height = "auto";
     }
 
+    const history = messages.map(({ role, content }) => ({ role, content }));
+
     setMessages((prev) => [
       ...prev,
       { id: crypto.randomUUID(), role: "user", content: message },
     ]);
 
     try {
-      const reply = await requestCoachReply(message);
+      const reply = await requestCoachReply(message, history);
       setMessages((prev) => [
         ...prev,
         { id: crypto.randomUUID(), role: "assistant", content: reply },
